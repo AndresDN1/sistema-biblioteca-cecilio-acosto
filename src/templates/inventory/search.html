@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Buscar Libros - Sistema Bibliotecario{% endblock %}
+
+{% block content %}
+<div class="container margin-top-lg">
+    <div class="card">
+        <h2>Búsqueda de Libros</h2>
+
+        <form action="{{ url_for('inventory.results_view') }}" method="GET" class="margin-top-md">
+            <div class="form-group">
+                <label for="title">Título</label>
+                <input type="text" id="title" name="title" class="form-control" placeholder="Búsqueda por título..." />
+            </div>
+
+            <div class="form-group margin-top-sm">
+                <label for="author">Autor</label>
+                <input type="text" id="author" name="author" class="form-control" placeholder="Búsqueda por autor..." />
+            </div>
+
+            <div class="form-group margin-top-sm">
+                <label for="publisher">Editorial</label>
+                <input type="text" id="publisher" name="publisher" class="form-control" placeholder="Búsqueda por editorial..." />
+            </div>
+
+            <div class="form-group margin-top-sm">
+                <label for="isbn">ISBN</label>
+                <input type="text" id="isbn" name="isbn" class="form-control" placeholder="Ej: 978..." />
+            </div>
+
+            <div class="form-group margin-top-sm">
+                <label for="publication_year_from">Publicado desde el año</label>
+                <input type="number" id="publication_year_from" name="publication_year_from" class="form-control" placeholder="Ej: 2000" />
+            </div>
+
+            <div class="form-group margin-top-sm">
+                <label for="dewey_code">Código Dewey</label>
+                <input type="text" id="dewey_code" name="dewey_code" class="form-control" />
+            </div>
+
+            <div class="form-checkbox-group margin-top-md">
+                <label>
+                    <input type="checkbox" id="is_braille" name="is_braille" value="true" />
+                    Solo Braille
+                </label>
+                <label>
+                    <input type="checkbox" id="is_audiobook" name="is_audiobook" value="true" />
+                    Solo Audiolibro
+                </label>
+            </div>
+
+            <div class="margin-top-md">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

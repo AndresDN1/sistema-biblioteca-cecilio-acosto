@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} - Detalle{% endblock %}
+
+{% block content %}
+<div class="container margin-top-lg">
+    <div id="detail-feedback" class="alert hidden margin-top-sm" role="alert"></div>
+
+    <div class="card">
+        <div class="header-actions">
+            <h2>{{ book.title }}</h2>
+            {% if g.user_id %}
+            <button id="btn-favorite" class="btn {% if is_favorite %}btn-primary{% else %}btn-outline{% endif %}"
+                data-book-id="{{ book.id }}" data-is-favorite="{{ 'true' if is_favorite else 'false' }}">
+                {% if is_favorite %}★ En Mis Intereses{% else %}☆ Marcar como Interesado{% endif %}
+            </button>
+            {% endif %}
+        </div>
+
+        <div class="margin-top-sm">
+            <p><strong>Autor:</strong> {{ book.author }}</p>
+            <p><strong>Editorial:</strong> {{ book.publisher }}</p>
+            {% if book.isbn %}<p><strong>ISBN:</strong> {{ book.isbn }}</p>{% endif %}
+            {% if book.publication_year %}<p><strong>Año:</strong> {{ book.publication_year }}</p>{% endif %}
+            {% if book.dewey_code %}<p><strong>Dewey:</strong> {{ book.dewey_code }}</p>{% endif %}
+        </div>
+
+        <hr class="margin-top-md margin-bottom-md" />
+
+        <div id="availability-section">
+            <h3>Ejemplares en Inventario (<span id="items-count">{{ items|length }}</span>)</h3>
+            <ul id="items-list" class="margin-top-sm" style="list-style-type: none; padding-left: 0;">
+                {% for item in items %}
+                <li class="item-row" id="item-{{ item.id }}">
+                    <span>Ubicación: <strong>{{ item.shelf_location }}</strong></span>
+                    <div>
+                        <span style="color: var(--success-color); font-weight: bold; margin-right: 1rem;">Disponible</span>
+                        {% if g.user_role == 'ADMIN' %}
+                        <button class="btn-icon-delete delete-item-btn" data-item-id="{{ item.id }}" title="Eliminar ejemplar">×</button>
+                        {% endif %}
+                    </div>
+                </li>
+                {% else %}
+                <li id="no-items-msg" class="margin-top-sm" style="color: #666; font-style: italic;">No hay ejemplares.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    {% if g.user_role == 'ADMIN' %}
+    <div class="card margin-top-lg">
+        <h3>Panel de Administración</h3>
+        
+        <form id="add-copy-form" class="margin-top-md" data-book-id="{{ book.id }}">
+            <div class="form-group">
+                <label>Añadir Ejemplar (Ubicación)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="shelf_location" class="form-control" placeholder="Ej: Pasillo 3" required>
+                    <button type="submit" class="btn btn-primary">Añadir</button>
+                </div>
+            </div>
+        </form>
+
+        <hr class="margin-top-lg margin-bottom-lg">
+
+        <h4>Modificar Información del Libro</h4>
+        <form id="edit-book-form" class="margin-top-md" data-book-id="{{ book.id }}">
+            <div class="form-group">
+                <label for="edit_title">Título</label>
+                <input type="text" id="edit_title" name="title" class="form-control" value="{{ book.title }}" required>
+            </div>
+            <div class="grid-results" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="edit_author">Autor</label>
+                    <input type="text" id="edit_author" name="author" class="form-control" value="{{ book.author }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_publisher">Editorial</label>
+                    <input type="text" id="edit_publisher" name="publisher" class="form-control" value="{{ book.publisher }}" required>
+                </div>
+            </div>
+            <div class="grid-results" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="edit_isbn">ISBN</label>
+                    <input type="text" id="edit_isbn" name="isbn" class="form-control" value="{{ book.isbn or '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="edit_year">Año</label>
+                    <input type="number" id="edit_year" name="publication_year" class="form-control" value="{{ book.publication_year or '' }}">
+                </div>
+            </div>
+            
+            <div class="form-checkbox-group margin-top-sm">
+                <label><input type="checkbox" id="edit_braille" {% if book.is_braille %}checked{% endif %}> Edición Braille</label>
+                <label><input type="checkbox" id="edit_audio" {% if book.is_audiobook %}checked{% endif %}> Audiolibro</label>
+            </div>
+
+            <div class="margin-top-md">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        </form>
+
+        <div class="admin-danger-zone margin-top-lg">
+            <h4 style="color: var(--error-color);">Eliminar libro</h4>
+            <p style="font-size: 0.85rem; margin-bottom: 1rem;">Eliminar este libro borrará también todos sus ejemplares e intereses asociados de los usuarios.</p>
+            <button id="btn-delete-book" class="btn btn-danger" data-book-id="{{ book.id }}">Eliminar Libro del Catálogo</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="margin-top-md">
+        <a href="{{ url_for('inventory.search_view') }}" class="btn btn-secondary">← Volver</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/pages/book_detail.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,39 @@
+<nav class="navbar">
+    <a href="{{ url_for('core.index_view') }}" class="brand">BIBLIOTECA CECILIO ACOSTA</a>
+    
+    <div class="nav-links">
+        {% if g.user_id %}
+            <a href="{{ url_for('inventory.search_view') }}" 
+               class="{{ 'active' if request.endpoint == 'inventory.search_view' else '' }}">
+                Buscar Libro
+            </a>
+        {% endif %}
+
+        {% if g.user_role == 'ADMIN' %}
+            <a href="{{ url_for('inventory.book_registration_form') }}" 
+               class="{{ 'active' if request.endpoint == 'inventory.book_registration_form' else '' }}">
+                Registrar Libro
+            </a>
+            <a href="{{ url_for('core.visitor_stats_view') }}" 
+                class="{{ 'active' if request.endpoint == 'core.visitor_stats_view' else '' }}">
+                Visitas
+    </a>
+            <span class="user-badge">ADMINISTRADOR</span>
+        {% endif %}
+
+        {% if g.user_id %}
+            <form action="{{ url_for('core.logout_view') }}" method="POST" style="display: inline;">
+                <button type="submit" class="link-btn">Cerrar Sesión</button>
+            </form>
+        {% else %}
+            <a href="{{ url_for('core.login_view') }}" 
+               class="{{ 'active' if request.endpoint == 'core.login_view' else '' }}">
+                Iniciar Sesión
+            </a>
+            <a href="{{ url_for('core.register_view') }}" 
+               class="{{ 'active' if request.endpoint == 'core.register_view' else '' }}">
+                Crear Cuenta
+            </a>
+        {% endif %}
+    </div>
+</nav>

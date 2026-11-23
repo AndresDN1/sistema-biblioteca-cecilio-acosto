@@ -1,0 +1,23 @@
+:root {
+    --primary-red: #7A2018;
+    --dark-red: #5C1610;
+    --light-red: #F5EAE8;
+    --accent-gold: #C5A059;
+    --soft-white: #FAF8F5;
+    --nav-bg: #1F1B1A;
+    --nav-text: #E0DDD8;
+    --text-main: #2C2825;
+    --text-muted: #6E6862;
+    --border-color: #DCD6CD;
+    --card-bg: #FFFFFF;
+
+    --success-color: #2E7D32;
+    --success-bg: #E8F5E9;
+    --error-color: #C62828;
+    --error-bg: #FFEBEE;
+
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --transition-speed: 0.25s;
+    --max-content-width: 1200px;
+}

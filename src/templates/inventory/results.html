@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados de Búsqueda - Sistema Bibliotecario{% endblock %}
+
+{% block content %}
+<div class="container margin-top-lg">
+    <div class="header-actions">
+        <h2>Resultados de Búsqueda</h2>
+        <a href="{{ url_for('inventory.search_view') }}" class="btn btn-secondary">Nueva Búsqueda</a>
+    </div>
+
+    {% if books %}
+    <div class="grid-results margin-top-md">
+        {% for book in books %}
+        <div class="card result-card">
+            <h3>{{ book.title }}</h3>
+            <p><strong>Autor:</strong> {{ book.author }}</p>
+            {% if book.publisher %}<p><strong>Editorial:</strong> {{ book.publisher }}</p>{% endif %}
+            {% if book.isbn %}<p><strong>ISBN:</strong> {{ book.isbn }}</p>{% endif %}
+            <div class="tags margin-top-sm">
+                {% if book.is_braille %}<span class="badge">Braille</span>{% endif %}
+                {% if book.is_audiobook %}<span class="badge">Audiolibro</span>{% endif %}
+            </div>
+            <div class="margin-top-md">
+                <a href="{{ url_for('inventory.book_view', book_id=book.id) }}" class="btn btn-sm btn-primary">Ver
+                    Detalle</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card margin-top-md text-center">
+        <p>No se encontraron libros con los criterios proporcionados.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

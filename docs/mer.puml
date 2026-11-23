@@ -1,0 +1,57 @@
+@startuml
+left to right direction
+
+entity "core.users" {
+    id : INT <<GENERATED ALWAYS AS IDENTITY>> <<PK>>
+    --
+    username : TEXT <<NOT NULL>> <<UNIQUE>>
+    password_hash : TEXT <<NOT NULL>>
+    full_name : TEXT <<NOT NULL>>
+    is_admin : BOOLEAN <<DEFAULT FALSE>>
+    is_active : BOOLEAN <<DEFAULT TRUE>>
+}
+
+entity "core.visitor_log" {
+    id : BIGINT <<GENERATED ALWAYS AS IDENTITY>> <<PK>>
+    --
+    visitor_id : TEXT <<NOT NULL>>
+    visitor_name : TEXT <<NOT NULL>>
+    contact_info : TEXT
+    check_in : TIMESTAMP <<DEFAULT CURRENT_TIMESTAMP>>
+}
+
+entity "inventory.books" {
+    id : INT <<GENERATED ALWAYS AS IDENTITY>> <<PK>>
+    collection_id : INTEGER <<NOT NULL>> <<FK>>
+    --
+    isbn : TEXT <<UNIQUE>>
+    title : TEXT <<NOT NULL>>
+    author : TEXT <<NOT NULL>>
+    publisher : TEXT <<NOT NULL>>
+    publication_year : SMALLINT
+    dewey_code : TEXT
+    is_braille : BOOLEAN <<DEFAULT FALSE>>
+    is_audiobook : BOOLEAN <<DEFAULT FALSE>>
+    classification_system : TEXT <<DEFAULT 'Dewey'>>
+}
+
+entity "inventory.interests" {
+    id : INT <<GENERATED ALWAYS AS IDENTITY>> <<PK>>
+    book_id : INT <<NOT NULL>> <<FK>>
+    user_id : INT <<NOT NULL> <<FK>>
+}
+
+entity "inventory.items" {
+    id : BIGINT <<GENERATED ALWAYS AS IDENTITY>> <<PK>>
+    book_id : INT <<NOT NULL>> <<FK>>
+    --
+    is_available : BOOLEAN <<DEFAULT TRUE>>
+    shelf_location : TEXT <<NOT NULL>>
+    entry_date : DATE <<DEFAULT CURRENT_DATE>>
+}
+
+inventory.books::id ||--o{ inventory.items::book_id : "Posee"
+inventory.books::id ||--o{ inventory.interests::book_id : "Es marcado como"
+inventory.interests::id }o--|| core.users::id : "Interesado en"
+
+@enduml

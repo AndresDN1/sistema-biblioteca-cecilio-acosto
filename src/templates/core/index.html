@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Biblioteca Cecilio Acosta{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="library-info-hero">
+    <h1>Biblioteca Pública Central Cecilio Acosta</h1>
+    <p>Red Estatal de Bibliotecas Públicas del Estado Miranda. Un espacio dedicado a la lectura, el aprendizaje y la preservación de la memoria histórica local.</p>
+</div>
+
+{% if g.user_id %}
+<section class="carousel-container">
+    <h2 class="carousel-title">Mis Libros de Interés</h2>
+
+    {% if interested_books %}
+    <div style="position: relative;">
+        <div class="carousel-track-wrapper">
+            <div class="carousel-track" id="carouselTrack">
+                {% for book in interested_books %}
+                <div class="carousel-card">
+                    <div>
+                        <h4 style="color: var(--text-main); margin-bottom: 0.6rem; line-height: 1.3;">{{ book.title }}</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.3rem;"><strong>Autor:</strong> {{ book.author }}</p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);"><strong>ISBN:</strong> {{ book.isbn or 'N/A' }}</p>
+                    </div>
+                    <a href="{{ url_for('inventory.book_view', book_id=book.id) }}" 
+                       style="margin-top: 1.5rem; color: var(--primary-red); font-size: 0.9rem; font-weight: 700; text-decoration: none; display: inline-block;">
+                        Ver Ficha Completa &rarr;
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="carousel-controls">
+            <button class="carousel-btn" id="prevBtn" type="button" aria-label="Anterior">&lsaquo;</button>
+            <button class="carousel-btn" id="nextBtn" type="button" aria-label="Siguiente">&rsaquo;</button>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state-box">
+        <h3>Tu lista de interés está vacía</h3>
+        <p>Explora el catálogo de la biblioteca y marca libros como favoritos para un acceso rápido desde este panel.</p>
+        <a href="{{ url_for('inventory.search_view') }}" 
+           class="btn btn-primary" 
+           style="margin-top: 1.5rem;">
+            Explorar Catálogo
+        </a>
+    </div>
+    {% endif %}
+</section>
+{% endif %}
+
+{% if g.user_role == 'ADMIN' %}
+<hr style="border: none; border-top: 1px solid var(--border-color); margin: 3rem 0;">
+
+<section class="visitor-section">
+    <h2 style="color: var(--primary-red); margin-bottom: 1.5rem;">Control de Asistencia y Visitas</h2>
+    
+    <div class="visitor-grid">
+        <div class="panel-card">
+            <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem; color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Registrar Entrada</h3>
+            <form id="visitorForm">
+                <div class="form-group">
+                    <label for="visitor_id">Cédula o Identificación</label>
+                    <input type="text" id="visitor_id" name="visitor_id" required placeholder="Ej: V-18234567">
+                </div>
+                
+                <div class="form-group">
+                    <label for="visitor_name">Nombre y Apellido</label>
+                    <input type="text" id="visitor_name" name="visitor_name" required placeholder="Ej: Carlos Mendoza">
+                </div>
+
+                <div class="form-group">
+                    <label for="contact_info">Contacto</label>
+                    <input type="text" id="contact_info" name="contact_info" placeholder="Teléfono o Correo">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 0.5rem;">Registrar Visita</button>
+            </form>
+        </div>
+
+        <div class="panel-card">
+            <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem; color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Registro de Visitantes</h3>
+
+            <form method="GET" action="{{ url_for('core.index_view') }}" class="search-bar">
+                <input type="text" name="q" value="{{ visitor_data.search_name if visitor_data else '' }}" placeholder="Buscar por nombre..." class="form-control">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Cédula</th>
+                        <th>Nombre</th>
+                        <th>Contacto</th>
+                        <th>Fecha y Hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if visitor_data and visitor_data.logs %}
+                        {% for log in visitor_data.logs %}
+                        <tr>
+                            <td><strong>{{ log.visitor_id }}</strong></td>
+                            <td>{{ log.visitor_name }}</td>
+                            <td>{{ log.contact_info or 'N/A' }}</td>
+                            <td>{{ log.check_in.strftime('%Y-%m-%d %H:%M') if log.check_in else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 3rem;">
+                                <div class="empty-state-box" style="border: none; padding: 0;">
+                                    <p>No hay registros de visitas disponibles.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+
+            {% if visitor_data and visitor_data.total_pages > 1 %}
+            <div class="pagination">
+                {% if visitor_data.current_page > 1 %}
+                <a href="{{ url_for('core.index_view', page=visitor_data.current_page - 1, q=visitor_data.search_name) }}">&laquo;</a>
+                {% endif %}
+
+                {% set current = visitor_data.current_page %}
+                {% set total = visitor_data.total_pages %}
+                {% set delta = 2 %}
+
+                {% for p in range(1, total + 1) %}
+                    {% if p == 1 or p == total or (p >= current - delta and p <= current + delta) %}
+                        <a href="{{ url_for('core.index_view', page=p, q=visitor_data.search_name) }}" 
+                           class="{{ 'active' if p == current else '' }}">
+                            {{ p }}
+                        </a>
+                    {% elif p == current - delta - 1 or p == current + delta + 1 %}
+                        <span class="pagination-ellipsis">...</span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if visitor_data.current_page < total %}
+                <a href="{{ url_for('core.index_view', page=visitor_data.current_page + 1, q=visitor_data.search_name) }}">&raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/pages/index.js') }}"></script>
+{% endblock %}
